@@ -16,7 +16,7 @@ def main():
     scaling_factor = .5
     visual_output = False
     try:
-        opts, args = getopt(sys.argv[1:], "hvs:c")
+        opts, args = getopt(sys.argv[4:], "hvc")
     except GetoptError:
         display_help()
         raise ValueError("Bad option flags.")
@@ -29,7 +29,7 @@ def main():
         elif opt == '-s':
             scaling_factor = float(arg)
         elif opt == '-c':
-            visual_ouput = True
+            visual_output = True
 
     if len(sys.argv) < 3:
         display_help()
@@ -67,8 +67,8 @@ def main():
     with open('%s' % EXPORT_FILE, 'w+') as f:
         writer = csv.writer(f)
         writer.writerows(colors)
-    if 
-    show_color_circles(circles, image, colors, scaling_factor)
+    if visual_output:
+        show_color_circles(circles, image, colors, scaling_factor)
 
 
 def find_circles(image, min_dist, min_radius):
