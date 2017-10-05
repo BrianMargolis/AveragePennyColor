@@ -92,17 +92,6 @@ def find_circles(image, min_dist, min_radius):
     return cv2.HoughCircles(gray_image, method, dp, min_dist, minRadius=min_radius)
 
 
-def show_circles(circles, image, image_duration=0):
-    for (x, y, r) in circles:
-        # draw the circle itself
-        cv2.circle(image, (x, y), r, (0, 255, 0), 4)
-        # draw a 10x10 square at the center point
-        cv2.rectangle(image, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
-
-    cv2.imshow("image", image)
-    cv2.waitKey(image_duration)
-
-
 def show_color_circles(circles, image, colors, scaling_factor, image_duration=0):
     for (x, y, radius, r, g, b) in colors:
         # draw the circle itself
