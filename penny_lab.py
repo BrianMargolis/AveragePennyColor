@@ -14,8 +14,9 @@ def main():
     # read in CLI args
     verbose = False
     scaling_factor = .5
+    visual_output = False
     try:
-        opts, args = getopt(sys.argv[1:], "hvs:")
+        opts, args = getopt(sys.argv[1:], "hvs:c")
     except GetoptError:
         display_help()
         raise ValueError("Bad option flags.")
@@ -27,8 +28,10 @@ def main():
             verbose = True
         elif opt == '-s':
             scaling_factor = float(arg)
+        elif opt == '-c':
+            visual_ouput = True
 
-    if len(sys.argv) < 4:
+    if len(sys.argv) < 3:
         display_help()
         raise ValueError("Not enough arguments.")
 
@@ -42,7 +45,6 @@ def main():
 
     min_dist = sys.argv[2]
     min_radius = sys.argv[3]
-    should_show_circles = sys.argv[4] == '1'
 
     # Perform edge detection
     print("Detecting pennies...")
@@ -59,15 +61,14 @@ def main():
             print("Penny #{0}: (x, y) = ({1}, {2}), r = {3}.".format(i, x, y, r))
         print("\n\n")
 
-    if should_show_circles:
-        show_circles(circles, image, image_duration=5000)
-
-    circles, image = scale(circles, image, scaling_factor)
-    colors = analyze_color(circles, image, verbose)
-    print("Writing colors in RGB format to {0}.".format(EXPORT_FILE))
+    circles, scaled_image = scale(circles, image, scaling_factor)
+    colors = analyze_color(circles, scaled_image, verbose)
+    print("Writing colors in xyrRGB format to {0}.".format(EXPORT_FILE))
     with open('%s' % EXPORT_FILE, 'w+') as f:
         writer = csv.writer(f)
         writer.writerows(colors)
+    if 
+    show_color_circles(circles, image, colors, scaling_factor)
 
 
 def find_circles(image, min_dist, min_radius):
@@ -101,6 +102,22 @@ def show_circles(circles, image, image_duration=0):
     cv2.waitKey(image_duration)
 
 
+def show_color_circles(circles, image, colors, scaling_factor, image_duration=0):
+    for (x, y, radius, r, g, b) in colors:
+        # draw the circle itself
+        x = int(x / scaling_factor)
+        y = int(y / scaling_factor)
+        radius = int(radius / scaling_factor)
+        r = int(r)
+        g = int(g)
+        b = int(b)
+        cv2.circle(image, (x, y), radius, (b, g, r), -1)
+
+    cv2.imshow("image", image)
+    cv2.waitKey(image_duration)
+    pass
+
+
 def analyze_color(circles, image, verbose):
     pixel_cache = load_pixel_cache()
 
@@ -108,7 +125,7 @@ def analyze_color(circles, image, verbose):
     image_width = image.shape[1]
 
     num_circles = len(circles)
-    colors = np.zeros(shape=(num_circles, 3))
+    colors = np.zeros(shape=(num_circles, 6))
     for i, (x_center, y_center, radius) in enumerate(circles):
         if verbose:
             print("Processing penny #{0}/{1} located at ({2}, {3}) with radius = {4}..."
@@ -124,7 +141,8 @@ def analyze_color(circles, image, verbose):
                 color = image[y_pixel][x_pixel]
                 color_sum = np.add(color, color_sum)
 
-        colors[i] = bgr_to_rgb(np.divide(color_sum, len(pixels)))
+        colors[i] = np.concatenate((np.array([x_center, y_center, radius]),
+                                    bgr_to_rgb(np.divide(color_sum, len(pixels)))))
         if verbose:
             print("Average color for penny #{0}: {1}\n".format(i + 1, ', '.join(colors[i].astype(str))))
 
