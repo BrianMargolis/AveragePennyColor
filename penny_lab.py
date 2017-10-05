@@ -61,9 +61,10 @@ def main():
             print("Penny #{0}: (x, y) = ({1}, {2}), r = {3}.".format(i, x, y, r))
         print("\n\n")
 
+    # Display results 
     circles, scaled_image = scale(circles, image, scaling_factor)
     colors = analyze_color(circles, scaled_image, verbose)
-    print("Writing colors in xyrRGB format to {0}.".format(EXPORT_FILE))
+    print("Writing colors in xyrRGB format to {0}...".format(EXPORT_FILE))
     with open('%s' % EXPORT_FILE, 'w+') as f:
         writer = csv.writer(f)
         writer.writerows(colors)
@@ -219,8 +220,6 @@ def bgr_to_rgb(color):
 
 
 # UI
-
-
 def display_help():
     print("Usage:\n")
     print("penny_lab.py [image_path] [min_dist] [min_radius] [show_circles]\n\n")
